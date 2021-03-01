@@ -1,5 +1,5 @@
 import { v4 } from 'uuid';
-import { EventListRoot, EVENTS, Factory, ImmutableAggregateRoot, make, Reducer } from './implementations/immutable';
+import { EventListRoot, EVENTS, ImmutableAggregateRootConstructor, ImmutableAggregateRoot, make, Reducer, REDUCER } from './implementations/immutable';
 
 interface Defined {
     id: string;
@@ -62,17 +62,17 @@ const initialState: StockItemState = {
     EAN: ''
 };
 
-interface Item extends ImmutableAggregateRoot<StockItemEvent> {
+interface Item extends ImmutableAggregateRoot<StockItemState,StockItemEvent> {
     define(EAN: string): Item;
     deposit(quantity: number): Item;
     dispatch(quantity: number): Item;
     getEAN(): string;
 };
 
-const itemFactory: Factory<StockItemState,StockItemEvent,Item> = function(state, change, base) {
+const itemFactory: ImmutableAggregateRootConstructor<StockItemState,StockItemEvent,Item> = function(state, change, base) {
     return {
         ...base,
-
+        [REDUCER]: reducer,
         define(EAN: string) {
             if (state.defined) {
                 return this;
@@ -113,7 +113,7 @@ const itemFactory: Factory<StockItemState,StockItemEvent,Item> = function(state,
 };
 
 // Example:
-const item = make(itemFactory, initialState, reducer, new EventListRoot({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }));
+const item = make(itemFactory, initialState, new EventListRoot({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }));
 const itemWithStock = item.define('1231231231230').deposit(100);
 console.log('commit:', itemWithStock[EVENTS].buildCommit());
 
