@@ -1,5 +1,4 @@
 import { v4 } from 'uuid';
-import { EventBasket } from './implementations/common/EventBasket';
 import { EventListRoot, EVENTS, Factory, ImmutableAggregateRoot, make, Reducer } from './implementations/immutable';
 
 interface Defined {

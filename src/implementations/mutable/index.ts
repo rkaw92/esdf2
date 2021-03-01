@@ -1,6 +1,6 @@
 import { DomainEvent } from '../../types/DomainEvent';
 import { DefaultEvent } from '../common/DefaultEvent';
-import { EventCollector } from '../common/EventBasket';
+import { EventCollector } from './EventBasket';
 
 const BASKET = Symbol('pending events');
 

@@ -1,4 +1,4 @@
-import { EventBasket } from './implementations/common/EventBasket';
+import { EventBasket } from './implementations/mutable/EventBasket';
 import { EasyAggregateRoot } from './implementations/mutable';
 
 interface Defined {
