@@ -63,17 +63,17 @@ export interface ImmutableAggregateRootConstructor<StateType,EmittedEventType ex
     (state: StateType, change: (event: EmittedEventType) => AggregateType, base: ImmutableAggregateRootBase): AggregateType;
 };
 
-function reducerNotCallableInFactory(): any {
+function reducerNotCallableInConstructor(): any {
     throw new Error('Cannot call change() while creating a new instance');
 }
 
-export function make<EmittedEventType extends DomainEvent,AggregateType extends ImmutableAggregateRoot<StateType,EmittedEventType>,StateType>(factory: ImmutableAggregateRootConstructor<StateType,EmittedEventType,AggregateType>, state: StateType, events: EventList): AggregateType {
-    let reducer: Reducer<StateType,EmittedEventType> = reducerNotCallableInFactory;
+export function make<EmittedEventType extends DomainEvent,AggregateType extends ImmutableAggregateRoot<StateType,EmittedEventType>,StateType>(constructor: ImmutableAggregateRootConstructor<StateType,EmittedEventType,AggregateType>, state: StateType, events: EventList): AggregateType {
+    let reducer: Reducer<StateType,EmittedEventType> = reducerNotCallableInConstructor;
     function change(event: EmittedEventType) {
         const newState = reducer(state, event);
-        return make(factory, newState, new EventListNode(event, events));
+        return make(constructor, newState, new EventListNode(event, events));
     }
-    const instance = factory(state, change, {
+    const instance = constructor(state, change, {
         [EVENTS]: events,
         [REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT]: REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT
     });
