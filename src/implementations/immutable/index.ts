@@ -48,6 +48,10 @@ export interface ImmutableAggregateRootBase {
     [EVENTS]: EventList;
 };
 
+export interface Reducer<StateType,EventType> {
+    (state: StateType, event: EventType): StateType;
+};
+
 export interface ImmutableAggregateRoot<
     StateType,
     EmittedEventType extends DomainEvent
@@ -55,21 +59,24 @@ export interface ImmutableAggregateRoot<
     [REDUCER]: Reducer<StateType,EmittedEventType>
 };
 
-export interface Reducer<StateType,EventType> {
-    (state: StateType, event: EventType): StateType;
+export type StateOf<T> = T extends ImmutableAggregateRoot<infer StateType,any> ? StateType : never;
+export type EventOf<T> = T extends ImmutableAggregateRoot<any,infer EmittedEventType> ? EmittedEventType : never;
+
+export interface ImmutableAggregateRootConstructor<AggregateType extends ImmutableAggregateRoot<any,any>> {
+    (state: StateOf<AggregateType>, change: (event: EventOf<AggregateType>) => AggregateType, base: ImmutableAggregateRootBase): AggregateType;
 };
 
-export interface ImmutableAggregateRootConstructor<StateType,EmittedEventType extends DomainEvent,AggregateType extends ImmutableAggregateRoot<StateType,EmittedEventType>> {
-    (state: StateType, change: (event: EmittedEventType) => AggregateType, base: ImmutableAggregateRootBase): AggregateType;
+export interface ImmutableAggregateRootFactory<AggregateType extends ImmutableAggregateRoot<any,any>> {
+    (events: EventList): AggregateType;
 };
 
 function reducerNotCallableInConstructor(): any {
     throw new Error('Cannot call change() while creating a new instance');
 }
 
-export function make<EmittedEventType extends DomainEvent,AggregateType extends ImmutableAggregateRoot<StateType,EmittedEventType>,StateType>(constructor: ImmutableAggregateRootConstructor<StateType,EmittedEventType,AggregateType>, state: StateType, events: EventList): AggregateType {
-    let reducer: Reducer<StateType,EmittedEventType> = reducerNotCallableInConstructor;
-    function change(event: EmittedEventType) {
+export function make<AggregateType extends ImmutableAggregateRoot<any,any>>(constructor: ImmutableAggregateRootConstructor<AggregateType>, state: StateOf<AggregateType>, events: EventList): AggregateType {
+    let reducer: Reducer<StateOf<AggregateType>,EventOf<AggregateType>> = reducerNotCallableInConstructor;
+    function change(event: EventOf<AggregateType>) {
         const newState = reducer(state, event);
         return make(constructor, newState, new EventListNode(event, events));
     }
@@ -79,4 +86,10 @@ export function make<EmittedEventType extends DomainEvent,AggregateType extends 
     });
     reducer = instance[REDUCER];
     return instance;
+};
+
+export function makeFactory<AggregateType extends ImmutableAggregateRoot<any,any>>(constructor: ImmutableAggregateRootConstructor<AggregateType>, initialState: StateOf<AggregateType>): ImmutableAggregateRootFactory<AggregateType> {
+    return function(events: EventList) {
+        return make(constructor, initialState, events);
+    };
 };

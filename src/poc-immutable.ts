@@ -1,5 +1,5 @@
 import { v4 } from 'uuid';
-import { EventListRoot, EVENTS, ImmutableAggregateRootConstructor, ImmutableAggregateRoot, make, Reducer, REDUCER } from './implementations/immutable';
+import { EventListRoot, EVENTS, ImmutableAggregateRootConstructor, ImmutableAggregateRoot, make, Reducer, REDUCER, makeFactory } from './implementations/immutable';
 
 interface Defined {
     id: string;
@@ -69,7 +69,7 @@ interface Item extends ImmutableAggregateRoot<StockItemState,StockItemEvent> {
     getEAN(): string;
 };
 
-const itemFactory: ImmutableAggregateRootConstructor<StockItemState,StockItemEvent,Item> = function(state, change, base) {
+const itemFactory = makeFactory<Item>(function(state, change, base) {
     return {
         ...base,
         [REDUCER]: reducer,
@@ -110,10 +110,10 @@ const itemFactory: ImmutableAggregateRootConstructor<StockItemState,StockItemEve
             return state.EAN;
         }
     };
-};
+}, initialState);
 
 // Example:
-const item = make(itemFactory, initialState, new EventListRoot({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }));
+const item = itemFactory(new EventListRoot({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }));
 const itemWithStock = item.define('1231231231230').deposit(100);
 console.log('commit:', itemWithStock[EVENTS].buildCommit());
 
