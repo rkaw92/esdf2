@@ -62,14 +62,14 @@ const initialState: StockItemState = {
     EAN: ''
 };
 
-interface Item extends ImmutableAggregateRoot<StockItemState,StockItemEvent> {
-    define(EAN: string): Item;
-    deposit(quantity: number): Item;
-    dispatch(quantity: number): Item;
+interface StockItem extends ImmutableAggregateRoot<StockItemState,StockItemEvent> {
+    define(EAN: string): StockItem;
+    deposit(quantity: number): StockItem;
+    dispatch(quantity: number): StockItem;
     getEAN(): string;
 };
 
-const itemFactory = makeFactory<Item>(function(state, change, base) {
+const itemConstructor: ImmutableAggregateRootConstructor<StockItem> = function(state, change, base) {
     return {
         ...base,
         [REDUCER]: reducer,
@@ -110,7 +110,9 @@ const itemFactory = makeFactory<Item>(function(state, change, base) {
             return state.EAN;
         }
     };
-}, initialState);
+};
+
+const itemFactory = makeFactory<StockItem>(itemConstructor, initialState);
 
 // Example:
 const item = itemFactory(new EventListRoot({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }));
