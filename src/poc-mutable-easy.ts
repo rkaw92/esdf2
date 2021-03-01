@@ -1,57 +1,43 @@
 import { EventBasket } from './implementations/mutable/EventBasket';
-import { EasyAggregateRoot, MutableAggregateRoot } from './implementations/mutable';
-import { DomainEvent } from './types/DomainEvent';
-import { DefaultEvent } from './implementations/common/DefaultEvent';
+import { EasyAggregateRoot } from './implementations/mutable';
 
-class Defined extends DefaultEvent {
-    public readonly type: "Defined" = 'Defined';
-    public readonly payload: {
+interface Defined {
+    type: "Defined";
+    payload: {
         EAN: string;
     };
-    constructor(EAN: string) {
-        super();
-        this.payload = { EAN };
-    }
 }
 
-class Deposited extends DefaultEvent {
-    public readonly type: "Deposited" = 'Deposited';
-    public readonly payload: {
+interface Deposited {
+    type: "Deposited";
+    payload: {
         quantity: number;
     };
-    constructor(quantity: number) {
-        super();
-        this.payload = { quantity };
-    }
 }
 
-class Dispatched extends DefaultEvent {
-    public readonly type: "Dispatched" = 'Dispatched';
-    public readonly payload: {
+interface Dispatched {
+    type: "Dispatched";
+    payload: {
         quantity: number;
     };
-    constructor(quantity: number) {
-        super();
-        this.payload = { quantity };
-    }
 }
 
 type StockItemEvent = Defined | Deposited | Dispatched;
 
-class StockItem extends MutableAggregateRoot<StockItemEvent> {
+class StockItem extends EasyAggregateRoot<StockItemEvent> {
     private defined: boolean = false;
     private totalQuantity: number = 0;
     private EAN: string = '';
 
     define(EAN: string) {
-        this.emit(new Defined(EAN));
+        this.emit({ type: 'Defined', payload: { EAN } });
     }
 
     deposit(quantity: number) {
         if (!this.defined) {
             throw new Error('Need to define the EAN first');
         }
-        this.emit(new Deposited(quantity));
+        this.emit({ type: 'Deposited', payload: { quantity } });
     }
 
     dispatch(quantity: number) {
@@ -61,7 +47,7 @@ class StockItem extends MutableAggregateRoot<StockItemEvent> {
         if (this.totalQuantity < quantity) {
             throw new Error('Out of stock');
         }
-        this.emit(new Dispatched(quantity));
+        this.emit({ type: 'Dispatched', payload: { quantity } });
     }
 
     apply(event: StockItemEvent) {
