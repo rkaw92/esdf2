@@ -64,7 +64,7 @@ export interface ImmutableAggregateRootConstructor<AggregateType extends Immutab
 };
 
 export interface ImmutableAggregateRootFactory<AggregateType extends ImmutableAggregateRoot<any,any>> {
-    (events: EventList): AggregateType;
+    (): AggregateType;
 };
 
 function reducerNotCallableInConstructor(): any {
@@ -86,7 +86,7 @@ export function make<AggregateType extends ImmutableAggregateRoot<any,any>>(cons
 };
 
 export function makeFactory<AggregateType extends ImmutableAggregateRoot<any,any>>(constructor: ImmutableAggregateRootConstructor<AggregateType>, initialState: StateOf<AggregateType>): ImmutableAggregateRootFactory<AggregateType> {
-    return function(events: EventList) {
-        return make(constructor, initialState, events);
+    return function() {
+        return make(constructor, initialState, new EventListRoot());
     };
 };
