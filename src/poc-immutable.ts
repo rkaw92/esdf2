@@ -1,5 +1,6 @@
 import { v4 } from 'uuid';
-import { EventListRoot, EVENTS, ImmutableAggregateRootConstructor, ImmutableAggregateRoot, make, Reducer, REDUCER, makeFactory } from './implementations/immutable';
+import { EventListRoot, ImmutableAggregateRootConstructor, ImmutableAggregateRoot, make, Reducer, REDUCER, makeFactory } from './implementations/immutable';
+import { EVENTS } from './types/CommitBuilder';
 
 interface Defined {
     id: string;

@@ -1,20 +1,19 @@
+import { CommitBuilderProvider, EVENTS } from '../../types/CommitBuilder';
 import { DomainEvent } from '../../types/DomainEvent';
-import { EventCollector } from './EventBasket';
+import { EventBasket } from './EventBasket';
 
-const BASKET = Symbol('pending events');
-
-export abstract class MutableAggregateRoot<EmittedEventType extends DomainEvent> {
-    protected [BASKET]: EventCollector;
-    constructor(basket: EventCollector) {
-        this[BASKET] = basket;
+export abstract class MutableAggregateRoot<EmittedEventType extends DomainEvent> implements CommitBuilderProvider {
+    public readonly [EVENTS]: EventBasket;
+    constructor() {
+        this[EVENTS] = new EventBasket();
     }
     public abstract apply(event: EmittedEventType): void;
     protected emit(event: EmittedEventType) {
-        this[BASKET].add(event);
+        this[EVENTS].add(event);
         this.apply(event);
     }
 };
 
 export interface MutableAggregateRootFactory<AggregateRootType extends MutableAggregateRoot<any>> {
-    (basket: EventCollector): AggregateRootType;
+    (): AggregateRootType;
 };

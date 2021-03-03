@@ -1,6 +1,7 @@
 import { EventBasket } from './implementations/mutable/EventBasket';
 import { MutableAggregateRoot } from './implementations/mutable';
 import { DomainEvent } from './types/DomainEvent';
+import { EVENTS } from './types/CommitBuilder';
 
 class Defined implements DomainEvent {
     public readonly type: "Defined" = 'Defined';
@@ -85,12 +86,12 @@ class StockItem extends MutableAggregateRoot<StockItemEvent> {
 // Example:
 
 const basket = new EventBasket();
-const itemFactory = (myBasket: typeof basket) => new StockItem(myBasket);
-const item = itemFactory(basket);
+const itemFactory = () => new StockItem();
+const item = itemFactory();
 
 item.define('1231231231230');
 item.deposit(100);
-console.log('commit: %s', basket.buildCommit({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', index: 1 }));
+console.log('commit: %s', item[EVENTS].buildCommit({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', index: 1 }));
 
 // This should crash:
 item.dispatch(200);

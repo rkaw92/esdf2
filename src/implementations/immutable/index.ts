@@ -1,10 +1,9 @@
 import { Commit, DefaultCommit } from "../../types/Commit";
-import { CommitBuilder } from "../../types/CommitBuilder";
+import { CommitBuilder, CommitBuilderProvider, EVENTS } from "../../types/CommitBuilder";
 import { DomainEvent, QualifiedDomainEvent, toQualified } from "../../types/DomainEvent";
 import { CommitLocation, EventLocation, nextEvent } from "../../types/Location";
 
 export const REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT = Symbol('please use { ...base } to construct layer supertype-compatible objects');
-export const EVENTS = Symbol('event collector');
 export const REDUCER = Symbol('reducer');
 export const INITIAL = Symbol('initial');
 
@@ -39,7 +38,7 @@ export class EventListNode implements CommitBuilder {
 
 export type EventList = EventListNode | EventListRoot;
 
-export interface ImmutableAggregateRootBase {
+export interface ImmutableAggregateRootBase extends CommitBuilderProvider {
     // TODO: Decine whether to keep this development-centric hint.
     [REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT]: typeof REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT;
     [EVENTS]: EventList;
