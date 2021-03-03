@@ -11,7 +11,7 @@ export interface QualifiedDomainEvent extends DomainEvent {
     location: EventLocation;
 };
 
-export const GENERATE_ID = Symbol('id generator for new QualifiedEvents');
+export const GENERATE_ID = Symbol('id generator for new Qualified Events');
 export interface IDGenerator {
     [GENERATE_ID]: () => string;
 };
