@@ -1,7 +1,7 @@
-import { Commit } from "../../types/Commit";
+import { Commit, DefaultCommit } from "../../types/Commit";
 import { CommitBuilder } from "../../types/CommitBuilder";
-import { DomainEvent } from "../../types/DomainEvent";
-import { ExclusiveLocation } from "../../types/ExclusiveLocation";
+import { DomainEvent, QualifiedDomainEvent, toQualified } from "../../types/DomainEvent";
+import { CommitLocation, EventLocation, nextEvent } from "../../types/Location";
 
 export const REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT = Symbol('please use { ...base } to construct layer supertype-compatible objects');
 export const EVENTS = Symbol('event collector');
@@ -9,21 +9,15 @@ export const REDUCER = Symbol('reducer');
 export const INITIAL = Symbol('initial');
 
 export class EventListRoot implements CommitBuilder {
-    private readonly context: ExclusiveLocation;
-    constructor(context: ExclusiveLocation) {
-        this.context = context;
-    }
-
-    buildCommit(): Commit {
+    buildCommit(commitLocation: CommitLocation): Commit {
         return {
-            location: this.context,
+            location: commitLocation,
             events: []
         };
     }
 }
 
 export class EventListNode implements CommitBuilder {
-    
     private event: DomainEvent;
     private previous: EventList | EventListRoot;
     constructor(event: DomainEvent, previous: EventList | EventListRoot) {
@@ -31,12 +25,15 @@ export class EventListNode implements CommitBuilder {
         this.previous = previous;
     }
 
-    buildCommit(): Commit {
-        const previousCommit = this.previous.buildCommit();
-        return {
-            ...previousCommit,
-            events: [ ...previousCommit.events, this.event ]
-        };
+    buildCommit(commitLocation: CommitLocation, start: EventLocation): Commit {
+        const previousCommit = this.previous.buildCommit(commitLocation, start);
+        const lastEvent: QualifiedDomainEvent | undefined = previousCommit.events[previousCommit.events.length - 1];
+        const myLocation = lastEvent ? nextEvent(lastEvent.location) : start;
+        const myEventAsQualified = toQualified(this.event, myLocation);
+        return new DefaultCommit(
+            previousCommit.location,
+            [ ...previousCommit.events, myEventAsQualified ]
+        );
     }
 };
 

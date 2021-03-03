@@ -1,5 +1,4 @@
 import { DomainEvent } from '../../types/DomainEvent';
-import { DefaultEvent } from '../common/DefaultEvent';
 import { EventCollector } from './EventBasket';
 
 const BASKET = Symbol('pending events');
@@ -18,17 +17,4 @@ export abstract class MutableAggregateRoot<EmittedEventType extends DomainEvent>
 
 export interface MutableAggregateRootFactory<AggregateRootType extends MutableAggregateRoot<any>> {
     (basket: EventCollector): AggregateRootType;
-};
-
-type WithID<T> = T & {
-    id: string;
-};
-export type BareDomainEvent = Omit<DomainEvent, "id">;
-
-export abstract class EasyAggregateRoot<ConstructedEventType extends BareDomainEvent> extends MutableAggregateRoot<ConstructedEventType & { id: string; }> {
-    protected emit(event: ConstructedEventType) {
-        const id = DefaultEvent.generateID();
-        const eventWithID: WithID<ConstructedEventType> = Object.assign({}, { id }, event);
-        super.emit(eventWithID);
-    }
 };

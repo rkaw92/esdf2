@@ -115,9 +115,9 @@ const itemConstructor: ImmutableAggregateRootConstructor<StockItem> = function(s
 const itemFactory = makeFactory<StockItem>(itemConstructor, initialState);
 
 // Example:
-const item = itemFactory(new EventListRoot({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }));
+const item = itemFactory(new EventListRoot());
 const itemWithStock = item.define('1231231231230').deposit(100);
-console.log('commit:', itemWithStock[EVENTS].buildCommit());
+console.log('commit: %s', itemWithStock[EVENTS].buildCommit({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', index: 1 }));
 
 // This should crash:
 itemWithStock.dispatch(200);
