@@ -38,14 +38,14 @@ type StockItemState = Readonly<{
 const reducer: Reducer<StockItemState,StockItemEvent> = function reducer(state, event) {
     // Record<StockItemEvent['type'],Reducer<StockItemState,StockItemEvent>>
     const eventHandlers = {
-        Defined: (state: StockItemState, event: Defined) => Object.assign(state, {
+        Defined: (state: StockItemState, event: Defined) => Object.assign({}, state, {
             defined: true,
             EAN: event.payload.EAN
         }),
-        Deposited: (state: StockItemState, event: Deposited) => Object.assign(state, {
+        Deposited: (state: StockItemState, event: Deposited) => Object.assign({}, state, {
             totalQuantity: state.totalQuantity + event.payload.quantity
         }),
-        Dispatched: (state: StockItemState, event: Dispatched) => Object.assign(state, {
+        Dispatched: (state: StockItemState, event: Dispatched) => Object.assign({}, state, {
             totalQuantity: state.totalQuantity - event.payload.quantity
         })
     };
