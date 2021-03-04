@@ -1,5 +1,6 @@
+import { basename } from 'path';
 import { v4 } from 'uuid';
-import { EventListRoot, ImmutableAggregateRootConstructor, ImmutableAggregateRoot, make, Reducer, REDUCER, makeFactory } from './implementations/immutable';
+import { EventListRoot, ImmutableAggregateRootConstructor, ImmutableAggregateRoot, make, Reducer, REDUCER, makeFactory, APPLY } from './implementations/immutable';
 import { EVENTS } from './types/CommitBuilder';
 
 interface Defined {
@@ -118,7 +119,16 @@ const itemFactory = makeFactory<StockItem>(itemConstructor, initialState);
 // Example:
 const item = itemFactory();
 const itemWithStock = item.define('1231231231230').deposit(100);
-console.log('commit: %s', itemWithStock[EVENTS].buildCommit({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', index: 1 }));
+const commit = itemWithStock[EVENTS].buildCommit({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', index: 1 });
+console.log('commit: %s', commit);
+
+let clone = itemFactory();
+for (let event of commit.events) {
+    clone = clone[APPLY](event as StockItemEvent);
+}
+console.log('clone\'s EAN:', clone.getEAN());
+const commit2 = clone[EVENTS].buildCommit({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', index: 1 });
+console.log('commit2: %s', commit2);
 
 // This should crash:
 itemWithStock.dispatch(200);

@@ -5,14 +5,14 @@ import { CommitLocation, EventLocation, nextEvent } from "../../types/Location";
 
 export const REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT = Symbol('please use { ...base } to construct layer supertype-compatible objects');
 export const REDUCER = Symbol('reducer');
-export const INITIAL = Symbol('initial');
+export const APPLY = Symbol('get new state without building up event list');
 
 export class EventListRoot implements CommitBuilder {
     buildCommit(commitLocation: CommitLocation): Commit {
-        return {
-            location: commitLocation,
-            events: []
-        };
+        return new DefaultCommit(
+            commitLocation,
+            []
+        );
     }
 }
 
@@ -38,10 +38,12 @@ export class EventListNode implements CommitBuilder {
 
 export type EventList = EventListNode | EventListRoot;
 
-export interface ImmutableAggregateRootBase extends CommitBuilderProvider {
+export interface ImmutableAggregateRootBase<EventType extends DomainEvent> extends CommitBuilderProvider {
     // TODO: Decine whether to keep this development-centric hint.
     [REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT]: typeof REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT;
     [EVENTS]: EventList;
+    // NOTE: This (as well as the "as any as T") is required because TypeScript has no real polymorphic "this".
+    [APPLY]: <T>(this: T, event: EventType) => T;
 };
 
 export interface Reducer<StateType,EventType> {
@@ -51,15 +53,15 @@ export interface Reducer<StateType,EventType> {
 export interface ImmutableAggregateRoot<
     StateType,
     EmittedEventType extends DomainEvent
-> extends ImmutableAggregateRootBase {
-    [REDUCER]: Reducer<StateType,EmittedEventType>
+> extends ImmutableAggregateRootBase<EmittedEventType> {
+    [REDUCER]: Reducer<StateType,EmittedEventType>;
 };
 
 export type StateOf<T> = T extends ImmutableAggregateRoot<infer StateType,any> ? StateType : never;
 export type EventOf<T> = T extends ImmutableAggregateRoot<any,infer EmittedEventType> ? EmittedEventType : never;
 
 export interface ImmutableAggregateRootConstructor<AggregateType extends ImmutableAggregateRoot<any,any>> {
-    (state: StateOf<AggregateType>, change: (event: EventOf<AggregateType>) => AggregateType, base: ImmutableAggregateRootBase): AggregateType;
+    (state: StateOf<AggregateType>, change: (event: EventOf<AggregateType>) => AggregateType, base: ImmutableAggregateRootBase<EventOf<AggregateType>>): AggregateType;
 };
 
 export interface ImmutableAggregateRootFactory<AggregateType extends ImmutableAggregateRoot<any,any>> {
@@ -72,11 +74,16 @@ function reducerNotCallableInConstructor(): any {
 
 export function make<AggregateType extends ImmutableAggregateRoot<any,any>>(constructor: ImmutableAggregateRootConstructor<AggregateType>, state: StateOf<AggregateType>, events: EventList): AggregateType {
     let reducer: Reducer<StateOf<AggregateType>,EventOf<AggregateType>> = reducerNotCallableInConstructor;
-    function change(event: EventOf<AggregateType>) {
+    function change(event: EventOf<AggregateType>): AggregateType {
         const newState = reducer(state, event);
         return make(constructor, newState, new EventListNode(event, events));
     }
+    function apply<T>(this: T, event: EventOf<AggregateType>): T {
+        const newState = reducer(state, event);
+        return make(constructor, newState, new EventListRoot()) as any as T;
+    }
     const instance = constructor(state, change, {
+        [APPLY]: apply,
         [EVENTS]: events,
         [REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT]: REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT
     });
