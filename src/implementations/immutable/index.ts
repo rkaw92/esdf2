@@ -1,11 +1,10 @@
-import { CommitBuilder, CommitLocation, Commit, DomainEvent, EventLocation, QualifiedDomainEvent, CommitBuilderProvider, EVENTS } from "esdf2-interfaces";
+import { CommitBuilder, CommitLocation, Commit, DomainEvent, EventLocation, QualifiedDomainEvent, AggregateRoot, EventOf, EVENTS, APPLY } from "esdf2-interfaces";
 import { DefaultCommit } from "../../types/Commit";
 import { toQualified } from "../../types/DomainEvent";
 import { nextEvent } from "../../types/Location";
 
 export const REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT = Symbol('please use { ...base } to construct layer supertype-compatible objects');
 export const REDUCER = Symbol('reducer');
-export const APPLY = Symbol('get new state without building up event list');
 
 export class EventListRoot implements CommitBuilder {
     buildCommit(commitLocation: CommitLocation): Commit {
@@ -38,12 +37,10 @@ export class EventListNode implements CommitBuilder {
 
 export type EventList = EventListNode | EventListRoot;
 
-export interface ImmutableAggregateRootBase<EventType extends DomainEvent> extends CommitBuilderProvider {
+export interface ImmutableAggregateRootBase<EventType extends DomainEvent> extends AggregateRoot<EventType> {
     // TODO: Decine whether to keep this development-centric hint.
     [REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT]: typeof REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT;
     [EVENTS]: EventList;
-    // NOTE: This (as well as the "as any as T") is required because TypeScript has no real polymorphic "this".
-    [APPLY]: <T>(this: T, event: EventType) => T;
 };
 
 export interface Reducer<StateType,EventType> {
@@ -58,7 +55,7 @@ export interface ImmutableAggregateRoot<
 };
 
 export type StateOf<T> = T extends ImmutableAggregateRoot<infer StateType,any> ? StateType : never;
-export type EventOf<T> = T extends ImmutableAggregateRoot<any,infer EmittedEventType> ? EmittedEventType : never;
+
 
 export interface ImmutableAggregateRootConstructor<AggregateType extends ImmutableAggregateRoot<any,any>> {
     (state: StateOf<AggregateType>, change: (event: EventOf<AggregateType>) => AggregateType, base: ImmutableAggregateRootBase<EventOf<AggregateType>>): AggregateType;

@@ -1,6 +1,5 @@
-import { EventBasket } from './implementations/mutable/EventBasket';
 import { MutableAggregateRoot } from './implementations/mutable';
-import { DomainEvent, EVENTS } from 'esdf2-interfaces';
+import { APPLY, DomainEvent, EVENTS } from 'esdf2-interfaces';
 
 class Defined implements DomainEvent {
     public readonly type: "Defined" = 'Defined';
@@ -84,13 +83,21 @@ class StockItem extends MutableAggregateRoot<StockItemEvent> {
 
 // Example:
 
-const basket = new EventBasket();
 const itemFactory = () => new StockItem();
 const item = itemFactory();
 
 item.define('1231231231230');
 item.deposit(100);
-console.log('commit: %s', item[EVENTS].buildCommit({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', index: 1 }));
+const commit = item[EVENTS].buildCommit({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', index: 1 });
+console.log('commit: %s', commit);
+
+let clone = itemFactory();
+for (let event of commit.events) {
+    clone = clone[APPLY](event as StockItemEvent);
+}
+console.log('clone\'s EAN:', clone.getEAN());
+const commit2 = clone[EVENTS].buildCommit({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', index: 1 });
+console.log('commit2: %s', commit2);
 
 // This should crash:
-item.dispatch(200);
+clone.dispatch(200);
