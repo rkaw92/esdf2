@@ -1,13 +1,4 @@
-import { QualifiedDomainEvent } from './DomainEvent';
-import { CommitLocation } from './Location';
-
-export interface BareCommit {
-    location: CommitLocation;
-}
-
-export interface Commit extends BareCommit {
-    events: QualifiedDomainEvent[];
-};
+import { Commit, CommitLocation, QualifiedDomainEvent } from 'esdf2-interfaces';
 
 export class DefaultCommit implements Commit {
     public readonly location: CommitLocation;

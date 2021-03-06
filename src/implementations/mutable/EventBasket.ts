@@ -1,7 +1,6 @@
-import { Commit, DefaultCommit } from "../../types/Commit";
-import { CommitBuilder } from "../../types/CommitBuilder";
-import { DomainEvent, toQualified } from "../../types/DomainEvent";
-import { CommitLocation, EventLocation } from "../../types/Location";
+import { Commit, CommitBuilder, CommitLocation, DomainEvent, EventLocation } from "esdf2-interfaces";
+import { DefaultCommit } from "../../types/Commit";
+import { toQualified } from "../../types/DomainEvent";
 
 export interface EventCollector {
     add(event: DomainEvent): void;

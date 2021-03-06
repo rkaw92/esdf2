@@ -1,15 +1,5 @@
+import { DomainEvent, EventLocation, QualifiedDomainEvent } from 'esdf2-interfaces';
 import { generateID } from "../implementations/common/generateID";
-import { EventLocation } from "./Location";
-
-export interface DomainEvent {
-    type: string;
-    payload: object;
-};
-
-export interface QualifiedDomainEvent extends DomainEvent {
-    id: string;
-    location: EventLocation;
-};
 
 export const GENERATE_ID = Symbol('id generator for new Qualified Events');
 export interface IDGenerator {

@@ -1,5 +1,4 @@
-import { CommitBuilderProvider, EVENTS } from '../../types/CommitBuilder';
-import { DomainEvent } from '../../types/DomainEvent';
+import { CommitBuilderProvider, EVENTS, DomainEvent } from 'esdf2-interfaces';
 import { EventBasket } from './EventBasket';
 
 export abstract class MutableAggregateRoot<EmittedEventType extends DomainEvent> implements CommitBuilderProvider {

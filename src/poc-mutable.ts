@@ -1,7 +1,6 @@
 import { EventBasket } from './implementations/mutable/EventBasket';
 import { MutableAggregateRoot } from './implementations/mutable';
-import { DomainEvent } from './types/DomainEvent';
-import { EVENTS } from './types/CommitBuilder';
+import { DomainEvent, EVENTS } from 'esdf2-interfaces';
 
 class Defined implements DomainEvent {
     public readonly type: "Defined" = 'Defined';

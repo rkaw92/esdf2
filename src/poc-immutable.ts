@@ -1,7 +1,7 @@
 import { basename } from 'path';
 import { v4 } from 'uuid';
 import { EventListRoot, ImmutableAggregateRootConstructor, ImmutableAggregateRoot, make, Reducer, REDUCER, makeFactory, APPLY } from './implementations/immutable';
-import { EVENTS } from './types/CommitBuilder';
+import { EVENTS } from 'esdf2-interfaces';
 
 interface Defined {
     id: string;

@@ -1,7 +1,7 @@
-import { Commit, DefaultCommit } from "../../types/Commit";
-import { CommitBuilder, CommitBuilderProvider, EVENTS } from "../../types/CommitBuilder";
-import { DomainEvent, QualifiedDomainEvent, toQualified } from "../../types/DomainEvent";
-import { CommitLocation, EventLocation, nextEvent } from "../../types/Location";
+import { CommitBuilder, CommitLocation, Commit, DomainEvent, EventLocation, QualifiedDomainEvent, CommitBuilderProvider, EVENTS } from "esdf2-interfaces";
+import { DefaultCommit } from "../../types/Commit";
+import { toQualified } from "../../types/DomainEvent";
+import { nextEvent } from "../../types/Location";
 
 export const REMEMBER_TO_INCLUDE_BASE_PROPERTIES_IN_RETURNED_OBJECT = Symbol('please use { ...base } to construct layer supertype-compatible objects');
 export const REDUCER = Symbol('reducer');
