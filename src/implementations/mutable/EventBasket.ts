@@ -7,19 +7,21 @@ export interface EventCollector {
 };
 
 export class EventBasket implements EventCollector, CommitBuilder {
-    private events: DomainEvent[];
-    constructor() {
-        this.events = [];
-    }
+    private events: DomainEvent[] = [];
+    constructor(private aggregateName: string) {}
     add(event: DomainEvent) {
         this.events.push(event);
     }
 
     buildCommit(commitLocation: CommitLocation, start: EventLocation): Commit {
         return new DefaultCommit(
-            commitLocation,
+            // Enrich CommitLocation to become an AggregateCommitLocation:
+            { ...commitLocation, aggregateName: this.aggregateName },
+            // Enrich EventLocation for each event to become an AggregateEventLocation:
             this.events.map((event, offset) => toQualified(event, {
+                aggregateName: this.aggregateName,
                 sequence: start.sequence,
+                // Give each event a unique index within the aggregate timeline:
                 index: start.index + offset
             }))
         );

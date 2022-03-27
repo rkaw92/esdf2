@@ -1,9 +1,9 @@
-import { Commit, CommitLocation, QualifiedDomainEvent } from 'esdf2-interfaces';
+import { Commit, AggregateCommitLocation, QualifiedDomainEvent } from 'esdf2-interfaces';
 
 export class DefaultCommit implements Commit {
-    public readonly location: CommitLocation;
+    public readonly location: AggregateCommitLocation;
     public readonly events: QualifiedDomainEvent[];
-    constructor(location: CommitLocation, events: QualifiedDomainEvent[]) {
+    constructor(location: AggregateCommitLocation, events: QualifiedDomainEvent[]) {
         this.location = location;
         this.events = events;
     }

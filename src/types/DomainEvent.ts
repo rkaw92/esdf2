@@ -1,4 +1,4 @@
-import { DomainEvent, EventLocation, QualifiedDomainEvent } from 'esdf2-interfaces';
+import { AggregateEventLocation, DomainEvent, QualifiedDomainEvent } from 'esdf2-interfaces';
 import { generateID } from "../implementations/common/generateID";
 
 export const GENERATE_ID = Symbol('id generator for new Qualified Events');
@@ -9,7 +9,7 @@ function isIDGenerator(object: any): object is IDGenerator {
     return (object && typeof object[GENERATE_ID] === 'function');
 }
 
-export function toQualified(event: DomainEvent, location: EventLocation): QualifiedDomainEvent {
+export function toQualified(event: DomainEvent, location: AggregateEventLocation): QualifiedDomainEvent {
     let id;
     if (isIDGenerator(event)) {
         id = event[GENERATE_ID]();

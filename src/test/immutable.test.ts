@@ -73,7 +73,7 @@ interface StockItem extends ImmutableAggregateRoot<StockItemState,StockItemEvent
     getTotalQuantity(): number;
 };
 
-const itemConstructor: ImmutableAggregateRootConstructor<StockItem> = function(state, change, base) {
+const itemConstructor: ImmutableAggregateRootConstructor<StockItem> = function StockItem(state, change, base) {
     return {
         ...base,
         [REDUCER]: reducer,
@@ -149,7 +149,7 @@ describe('ImmutableAggregateRoot', function() {
         let item = itemFactory().define('1231231231230').deposit(300);
         const commit = item[EVENTS].buildCommit({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', index: 1 });
         assert.strictEqual(commit.events.length, 2);
-        assert.deepStrictEqual(commit.location, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 });
+        assert.deepStrictEqual(commit.location, { aggregateName: 'StockItem', sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 });
         assert.strictEqual(commit.events[0].type, 'Defined');
         assert.strictEqual(commit.events[1].type, 'Deposited');
     });

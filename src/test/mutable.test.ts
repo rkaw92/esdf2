@@ -1,5 +1,5 @@
 import { MutableAggregateRoot } from '..';
-import { APPLY, DomainEvent, EVENTS } from 'esdf2-interfaces';
+import { AGGREGATE_NAME, APPLY, DomainEvent, EVENTS } from 'esdf2-interfaces';
 import * as assert from 'assert';
 
 // Our test implements a simple stock tracker aggregate root
@@ -110,7 +110,7 @@ describe('MutableAggregateRoot', function() {
         item.deposit(100);
         const commit = item[EVENTS].buildCommit({ sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 }, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', index: 1 });
         assert.strictEqual(commit.events.length, 2);
-        assert.deepStrictEqual(commit.location, { sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 });
+        assert.deepStrictEqual(commit.location, { aggregateName: 'StockItem', sequence: '9fb1d62a-91ff-4906-926f-ad4e9e139dc7', slot: 1 });
     });
     it('should support rehydrating using existing events', function() {
         const original = itemFactory();

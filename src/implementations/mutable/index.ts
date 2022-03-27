@@ -1,10 +1,12 @@
-import { EVENTS, APPLY, DomainEvent, AggregateRoot } from 'esdf2-interfaces';
+import { EVENTS, APPLY, DomainEvent, AggregateRoot, AGGREGATE_NAME } from 'esdf2-interfaces';
 import { EventBasket } from './EventBasket';
 
 export abstract class MutableAggregateRoot<EmittedEventType extends DomainEvent> implements AggregateRoot<EmittedEventType> {
     public readonly [EVENTS]: EventBasket;
+    public readonly [AGGREGATE_NAME]: string;
     constructor() {
-        this[EVENTS] = new EventBasket();
+        this[AGGREGATE_NAME] = this.getAggregateName();
+        this[EVENTS] = new EventBasket(this[AGGREGATE_NAME]);
     }
     public abstract apply(event: EmittedEventType): void;
     public [APPLY]<T>(event: EmittedEventType): T {
@@ -16,6 +18,9 @@ export abstract class MutableAggregateRoot<EmittedEventType extends DomainEvent>
     protected emit(event: EmittedEventType) {
         this[EVENTS].add(event);
         this.apply(event);
+    }
+    protected getAggregateName() {
+        return this.constructor.name;
     }
 };
 
